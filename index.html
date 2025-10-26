@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Statistics Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Spotify Statistics Visualizer</h1>
+        <p class="privacy-disclaimer">All your data is processed locally in your browser and never leaves your computer.</p>
+    </header>
+    <main>
+        <section id="file-upload-section">
+            <h2>Upload your Spotify Streaming History</h2>
+            <p>Select all of your 'StreamingHistoryX.json' files.</p>
+            <input type="file" id="json-files-input" multiple accept=".json">
+            <button id="process-files-btn">Process Files</button>
+        </section>
+        <section id="dashboard-section">
+            <h2>Your Listening Dashboard</h2>
+            <div id="stats-container"></div>
+            <div id="charts-container">
+                <canvas id="top-artists-chart"></canvas>
+                <canvas id="top-tracks-chart"></canvas>
+                <canvas id="hourly-activity-chart"></canvas>
+                <canvas id="daily-activity-chart"></canvas>
+            </div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
