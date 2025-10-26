@@ -1,16 +1,34 @@
-document.getElementById('process-files-btn').addEventListener('click', handleFileProcessing);
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('json-files-input');
+    const processBtn = document.getElementById('process-files-btn');
+    const fileCount = document.getElementById('file-count');
+
+    fileInput.addEventListener('change', () => {
+        fileCount.textContent = `${fileInput.files.length} file(s) selected`;
+    });
+
+    processBtn.addEventListener('click', handleFileProcessing);
+});
+
+const loader = document.getElementById('loader');
+const errorMessage = document.getElementById('error-message');
+const summarySection = document.getElementById('summary-section');
+const chartsSection = document.getElementById('charts-section');
 
 async function handleFileProcessing() {
     const fileInput = document.getElementById('json-files-input');
     const files = fileInput.files;
 
     if (files.length === 0) {
-        alert('Please select your Spotify JSON files first.');
+        showError('Please select your Spotify JSON files first.');
         return;
     }
 
-    let allStreams = [];
+    resetUI();
+    loader.classList.remove('hidden');
+
     try {
+        let allStreams = [];
         for (const file of files) {
             const fileContent = await readFileAsText(file);
             const jsonData = JSON.parse(fileContent);
@@ -18,16 +36,17 @@ async function handleFileProcessing() {
                 allStreams = allStreams.concat(jsonData);
             }
         }
-    } catch (error) {
-        alert('Error reading or parsing files. Please make sure you have selected the correct JSON files.');
-        console.error(error);
-        return;
-    }
 
-    if (allStreams.length > 0) {
-        displayDashboard(allStreams);
-    } else {
-        alert('No streaming data found in the selected files.');
+        if (allStreams.length > 0) {
+            displayDashboard(allStreams);
+        } else {
+            showError('No streaming data found in the selected files.');
+        }
+    } catch (error) {
+        showError('Error reading or parsing files. Please make sure they are valid JSON files.');
+        console.error(error);
+    } finally {
+        loader.classList.add('hidden');
     }
 }
 
@@ -41,11 +60,14 @@ function readFileAsText(file) {
 }
 
 function displayDashboard(data) {
-    document.getElementById('dashboard-section').style.display = 'block';
+    summarySection.classList.remove('hidden');
+    chartsSection.classList.remove('hidden');
 
-    const totalListenTime = data.reduce((acc, stream) => acc + stream.msPlayed, 0);
-    const totalHours = (totalListenTime / (1000 * 60 * 60)).toFixed(2);
-    document.getElementById('stats-container').innerHTML = `<h3>Total Listening Time: ${totalHours} hours</h3>`;
+    displaySummaryStats(data);
+
+    // Chart Creations
+    const listeningOverTime = getListeningOverTime(data);
+    createLineChart('listening-over-time-chart', 'Listening Over Time (Hours per Month)', listeningOverTime.labels, listeningOverTime.data);
 
     const topArtists = getTopItems(data, 'artistName', 10);
     createBarChart('top-artists-chart', 'Top 10 Artists', topArtists.labels, topArtists.data);
@@ -60,27 +82,70 @@ function displayDashboard(data) {
     createBarChart('daily-activity-chart', 'Listening Activity by Day of Week', dailyActivity.labels, dailyActivity.data, 'Plays');
 }
 
+function displaySummaryStats(data) {
+    const statsContainer = document.getElementById('stats-container');
+    const totalMs = data.reduce((acc, stream) => acc + stream.msPlayed, 0);
+    const totalMinutes = Math.round(totalMs / 60000);
+    const totalHours = (totalMinutes / 60).toFixed(1);
+
+    const uniqueArtists = new Set(data.map(s => s.artistName)).size;
+    const uniqueSongs = new Set(data.map(s => s.trackName)).size;
+
+    const stats = {
+        'Total plays': data.length.toLocaleString(),
+        'Total minutes': totalMinutes.toLocaleString(),
+        'Total hours': totalHours.toLocaleString(),
+        'Unique artists': uniqueArtists.toLocaleString(),
+        'Unique songs': uniqueSongs.toLocaleString()
+    };
+
+    statsContainer.innerHTML = Object.entries(stats).map(([key, value]) => `
+        <div class="stat-item">
+            <h3>${value}</h3>
+            <p>${key}</p>
+        </div>
+    `).join('');
+}
+
+function getListeningOverTime(data) {
+    const monthlyHours = {};
+
+    data.forEach(stream => {
+        const date = new Date(stream.endTime);
+        const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        monthlyHours[monthYear] = (monthlyHours[monthYear] || 0) + stream.msPlayed;
+    });
+
+    const sortedMonths = Object.keys(monthlyHours).sort();
+
+    return {
+        labels: sortedMonths.map(month => new Date(month + '-01').toLocaleString('default', { month: 'short', year: 'numeric' })),
+        data: sortedMonths.map(month => parseFloat((monthlyHours[month] / 3600000).toFixed(2))) // ms to hours
+    };
+}
+
+
 function getTopItems(data, itemKey, count) {
     const itemCounts = data.reduce((acc, stream) => {
         const item = stream[itemKey];
-        acc[item] = (acc[item] || 0) + stream.msPlayed;
+        if(item) {
+            acc[item] = (acc[item] || 0) + stream.msPlayed;
+        }
         return acc;
     }, {});
 
     const sortedItems = Object.entries(itemCounts).sort(([, a], [, b]) => b - a).slice(0, count);
     return {
         labels: sortedItems.map(([label]) => label),
-        data: sortedItems.map(([, msPlayed]) => (msPlayed / (1000 * 60)).toFixed(2)) // in minutes
+        data: sortedItems.map(([, msPlayed]) => parseFloat((msPlayed / 60000).toFixed(2))) // ms to minutes
     };
 }
 
 function getHourlyActivity(data) {
     const hourlyCounts = new Array(24).fill(0);
     data.forEach(stream => {
-        const hour = new Date(stream.endTime).getHours();
-        hourlyCounts[hour]++;
+        hourlyCounts[new Date(stream.endTime).getHours()]++;
     });
-
     return {
         labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
         data: hourlyCounts
@@ -89,50 +154,80 @@ function getHourlyActivity(data) {
 
 function getDailyActivity(data) {
     const dailyCounts = new Array(7).fill(0);
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     data.forEach(stream => {
-        const day = new Date(stream.endTime).getDay();
-        dailyCounts[day]++;
+        dailyCounts[new Date(stream.endTime).getDay()]++;
     });
-
     return {
         labels: days,
         data: dailyCounts
     };
 }
 
-let charts = {};
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.classList.remove('hidden');
+}
 
-function createBarChart(canvasId, title, labels, data, label = 'Minutes Played') {
+function resetUI() {
+    summarySection.classList.add('hidden');
+    chartsSection.classList.add('hidden');
+    errorMessage.classList.add('hidden');
+}
+
+// Chart.js reusable functions
+let charts = {};
+function createChart(canvasId, type, title, labels, data, label, options = {}) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     if (charts[canvasId]) {
         charts[canvasId].destroy();
     }
     charts[canvasId] = new Chart(ctx, {
-        type: 'bar',
+        type: type,
         data: {
             labels: labels,
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: 'rgba(29, 185, 84, 0.5)',
+                backgroundColor: 'rgba(29, 185, 84, 0.2)',
                 borderColor: 'rgba(29, 185, 84, 1)',
-                borderWidth: 1
+                borderWidth: 1,
+                pointBackgroundColor: 'rgba(29, 185, 84, 1)',
+                tension: 0.1
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
+                legend: { display: false },
                 title: {
                     display: true,
-                    text: title
+                    text: title,
+                    color: '#fff',
+                    font: { size: 16 }
                 }
             },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: { color: '#b3b3b3' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#b3b3b3' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 }
-            }
+            },
+            ...options
         }
     });
+}
+
+function createBarChart(canvasId, title, labels, data, label = 'Minutes Played') {
+    createChart(canvasId, 'bar', title, labels, data, label);
+}
+
+function createLineChart(canvasId, title, labels, data, label = 'Hours Played') {
+    createChart(canvasId, 'line', title, labels, data, label);
 }
