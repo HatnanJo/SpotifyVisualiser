@@ -1,8 +1,30 @@
-document.getElementById('json-files-input').addEventListener('change', () => {
-    const fileInput = document.getElementById('json-files-input');
-    const fileCount = document.getElementById('file-count');
-    fileCount.textContent = `${fileInput.files.length} file(s) selected`;
+const fileInput = document.getElementById('json-files-input');
+const fileCount = document.getElementById('file-count');
+const dropZone = document.getElementById('drop-zone');
+
+fileInput.addEventListener('change', () => {
+    updateFileCount(fileInput.files);
 });
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+    updateFileCount(fileInput.files);
+});
+
+function updateFileCount(files) {
+    fileCount.textContent = `${files.length} file(s) selected`;
+}
 
 const loader = document.getElementById('loader');
 const errorMessage = document.getElementById('error-message');
@@ -31,8 +53,10 @@ async function handleFileProcessing() {
             }
         }
 
-        if (allStreams.length > 0) {
-            const validStreams = allStreams.filter(stream => stream.msPlayed > 0);
+        const standardizedStreams = allStreams.map(standardizeStreamData);
+
+        if (standardizedStreams.length > 0) {
+            const validStreams = standardizedStreams.filter(stream => stream.msPlayed > 0 && stream.trackName && stream.artistName);
             displayDashboard(validStreams);
         } else {
             showError('No streaming data found in the selected files.');
@@ -54,7 +78,21 @@ function readFileAsText(file) {
     });
 }
 
+function standardizeStreamData(stream) {
+    // Handles variations in Spotify's JSON export format.
+    return {
+        endTime: stream.endTime || stream.ts,
+        artistName: stream.artistName || stream.master_metadata_album_artist_name,
+        trackName: stream.trackName || stream.master_metadata_track_name,
+        msPlayed: stream.msPlayed || stream.ms_played,
+    };
+}
+
 function displayDashboard(data) {
+    if (data.length === 0) {
+        showError('No valid streaming history could be found in your files. Please ensure the files are correct and contain playable tracks.');
+        return;
+    }
     summarySection.classList.remove('hidden');
     chartsSection.classList.remove('hidden');
 

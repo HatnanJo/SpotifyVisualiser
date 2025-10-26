@@ -33,6 +33,23 @@ section {
     text-align: center;
 }
 
+#drop-zone {
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 30px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+#drop-zone.dragover {
+    border-color: #1DB954;
+    background-color: #333;
+}
+
+#drop-zone p {
+    color: #b3b3b3;
+    margin-top: 15px;
+}
+
 /* Custom file input button */
 .custom-file-upload {
     background-color: #1DB954;
