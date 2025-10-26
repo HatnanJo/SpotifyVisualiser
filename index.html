@@ -13,9 +13,12 @@
     </header>
     <main>
         <section id="file-upload-section">
-            <label for="json-files-input" class="custom-file-upload">Choose Files</label>
-            <input type="file" id="json-files-input" multiple accept=".json">
-            <span id="file-count">0 files selected</span>
+            <div id="drop-zone">
+                <label for="json-files-input" class="custom-file-upload">Choose Files</label>
+                <input type="file" id="json-files-input" multiple accept=".json">
+                <span id="file-count">0 files selected</span>
+                <p>or drag and drop them here</p>
+            </div>
             <button id="process-files-btn" onclick="handleFileProcessing()">Process Files</button>
             <div id="loader" class="hidden"></div>
             <div id="error-message" class="hidden"></div>
