@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Statistics Visualizer</title>
+    <title>Spotify Visualizer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Spotify Statistics Visualizer</h1>
+        <h1>Spotify Visualizer</h1>
         <p class="privacy-disclaimer">All your data is processed locally in your browser and never leaves your computer.</p>
     </header>
     <main>
         <section id="file-upload-section">
-            <h2>Upload your Spotify Streaming History</h2>
-            <p>Select all of your 'StreamingHistoryX.json' files.</p>
+            <label for="json-files-input" class="custom-file-upload">Choose Files</label>
             <input type="file" id="json-files-input" multiple accept=".json">
+            <span id="file-count">0 files selected</span>
             <button id="process-files-btn">Process Files</button>
+            <div id="loader" class="hidden"></div>
+            <div id="error-message" class="hidden"></div>
         </section>
-        <section id="dashboard-section">
-            <h2>Your Listening Dashboard</h2>
+
+        <section id="summary-section" class="hidden">
+            <h2>Summary</h2>
             <div id="stats-container"></div>
+        </section>
+
+        <section id="charts-section" class="hidden">
             <div id="charts-container">
+                <canvas id="listening-over-time-chart"></canvas>
                 <canvas id="top-artists-chart"></canvas>
                 <canvas id="top-tracks-chart"></canvas>
                 <canvas id="hourly-activity-chart"></canvas>

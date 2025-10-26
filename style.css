@@ -3,8 +3,8 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 20px;
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: #121212;
+    color: #fff;
 }
 
 header {
@@ -16,31 +16,47 @@ h1 {
     color: #1DB954; /* Spotify Green */
 }
 
-.privacy-disclaimer {
-    font-size: 0.9em;
-    color: #666;
-}
-
 main {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
     display: grid;
     gap: 40px;
 }
 
 section {
-    background: #fff;
+    background: #282828;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #file-upload-section {
     text-align: center;
 }
 
-input[type="file"] {
-    margin-bottom: 20px;
+/* Custom file input button */
+.custom-file-upload {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+    background-color: #1ed760;
+}
+
+#json-files-input {
+    display: none;
+}
+
+#file-count {
+    margin-left: 15px;
+    font-size: 0.9em;
 }
 
 button {
@@ -52,39 +68,73 @@ button {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s;
+    margin-top: 20px;
 }
 
 button:hover {
     background-color: #1ed760;
 }
 
-#dashboard-section {
-    display: none; /* Hidden by default */
+.hidden {
+    display: none;
+}
+
+#loader {
+    border: 5px solid #444;
+    border-top: 5px solid #1DB954;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#error-message {
+    color: #ff6b6b;
+    margin-top: 15px;
+}
+
+#summary-section h2, #charts-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 #stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
     text-align: center;
-    margin-bottom: 40px;
-    font-size: 1.2em;
+}
+
+.stat-item {
+    background: #333;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.stat-item h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.5em;
+    color: #1DB954;
+}
+
+.stat-item p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #b3b3b3;
 }
 
 #charts-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
+    gap: 40px;
 }
 
 canvas {
     width: 100% !important;
     height: auto !important;
-}
-
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-
-    #charts-container {
-        grid-template-columns: 1fr;
-    }
 }
