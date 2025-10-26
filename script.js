@@ -32,7 +32,8 @@ async function handleFileProcessing() {
         }
 
         if (allStreams.length > 0) {
-            displayDashboard(allStreams);
+            const validStreams = allStreams.filter(stream => stream.msPlayed > 0);
+            displayDashboard(validStreams);
         } else {
             showError('No streaming data found in the selected files.');
         }
@@ -64,10 +65,14 @@ function displayDashboard(data) {
     createLineChart('listening-over-time-chart', 'Listening Over Time (Hours per Month)', listeningOverTime.labels, listeningOverTime.data);
 
     const topArtists = getTopItems(data, 'artistName', 10);
-    createBarChart('top-artists-chart', 'Top 10 Artists', topArtists.labels, topArtists.data);
+    if (topArtists.labels.length > 0) {
+        createBarChart('top-artists-chart', 'Top 10 Artists', topArtists.labels, topArtists.data);
+    }
 
     const topTracks = getTopItems(data, 'trackName', 10);
-    createBarChart('top-tracks-chart', 'Top 10 Tracks', topTracks.labels, topTracks.data);
+    if (topTracks.labels.length > 0) {
+        createBarChart('top-tracks-chart', 'Top 10 Tracks', topTracks.labels, topTracks.data);
+    }
 
     const hourlyActivity = getHourlyActivity(data);
     createBarChart('hourly-activity-chart', 'Listening Activity by Hour', hourlyActivity.labels, hourlyActivity.data, 'Plays');
@@ -82,8 +87,8 @@ function displaySummaryStats(data) {
     const totalMinutes = Math.round(totalMs / 60000);
     const totalHours = (totalMinutes / 60).toFixed(1);
 
-    const uniqueArtists = new Set(data.map(s => s.artistName)).size;
-    const uniqueSongs = new Set(data.map(s => s.trackName)).size;
+    const uniqueArtists = new Set(data.map(s => s.artistName).filter(Boolean)).size;
+    const uniqueSongs = new Set(data.map(s => s.trackName).filter(Boolean)).size;
 
     const stats = {
         'Total plays': data.length.toLocaleString(),
