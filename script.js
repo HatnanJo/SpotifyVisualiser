@@ -1,13 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.getElementById('json-files-input').addEventListener('change', () => {
     const fileInput = document.getElementById('json-files-input');
-    const processBtn = document.getElementById('process-files-btn');
     const fileCount = document.getElementById('file-count');
-
-    fileInput.addEventListener('change', () => {
-        fileCount.textContent = `${fileInput.files.length} file(s) selected`;
-    });
-
-    processBtn.addEventListener('click', handleFileProcessing);
+    fileCount.textContent = `${fileInput.files.length} file(s) selected`;
 });
 
 const loader = document.getElementById('loader');
