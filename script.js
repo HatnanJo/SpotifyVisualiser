@@ -1,6 +1,9 @@
 const fileInput = document.getElementById('json-files-input');
 const fileCount = document.getElementById('file-count');
 const dropZone = document.getElementById('drop-zone');
+const processBtn = document.getElementById('process-files-btn');
+
+processBtn.addEventListener('click', handleFileProcessing);
 
 fileInput.addEventListener('change', () => {
     updateFileCount(fileInput.files);
