@@ -56,7 +56,7 @@ async function handleFileProcessing() {
         const standardizedStreams = allStreams.map(standardizeStreamData);
 
         if (standardizedStreams.length > 0) {
-            const validStreams = standardizedStreams.filter(stream => stream.msPlayed > 0 && stream.trackName && stream.artistName);
+            const validStreams = standardizedStreams.filter(stream => stream.msPlayed > 0 && stream.trackName && stream.artistName && stream.endTime);
             displayDashboard(validStreams);
         } else {
             showError('No streaming data found in the selected files.');
