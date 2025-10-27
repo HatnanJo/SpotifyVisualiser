@@ -241,7 +241,7 @@ function resetUI() {
 
 // Chart.js reusable functions
 let charts = {};
-function createChart(canvasId, type, title, labels, data, label, options = {}) {
+function createChart(canvasId, type, title, labels, data, label) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     if (charts[canvasId]) {
         charts[canvasId].destroy();
@@ -264,26 +264,37 @@ function createChart(canvasId, type, title, labels, data, label, options = {}) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
+                legend: {
+                    display: false
+                },
                 title: {
                     display: true,
                     text: title,
                     color: '#fff',
-                    font: { size: 16 }
+                    font: {
+                        size: 16
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { color: '#b3b3b3' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    ticks: {
+                        color: '#b3b3b3'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
                 },
                 x: {
-                    ticks: { color: '#b3b3b3' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    ticks: {
+                        color: '#b3b3b3'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
                 }
-            },
-            ...options
+            }
         }
     });
 }
