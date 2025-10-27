@@ -162,12 +162,13 @@ footer {
     align-items: center;
     margin-top: 40px;
     padding-top: 20px;
-    border-top: 1px solid #444;
-    position: relative;
+}
+
+.footer-placeholder, .version {
+    flex: 1;
 }
 
 .bmc-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 1;
+    text-align: center;
 }
