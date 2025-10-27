@@ -155,3 +155,19 @@ canvas {
     width: 100% !important;
     aspect-ratio: 16 / 9;
 }
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+    position: relative;
+}
+
+.bmc-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
