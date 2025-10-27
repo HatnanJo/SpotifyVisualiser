@@ -262,7 +262,6 @@ function createChart(canvasId, type, title, labels, data, label) {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
