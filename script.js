@@ -106,24 +106,44 @@ function displayDashboard(data) {
     displaySummaryStats(data);
 
     // Chart Creations
-    const listeningOverTime = getListeningOverTime(data);
-    createLineChart('listening-over-time-chart', 'Listening Over Time (Hours per Month)', listeningOverTime.labels, listeningOverTime.data);
-
-    const topArtists = getTopItems(data, 'artistName', 10);
-    if (topArtists.labels.length > 0) {
-        createBarChart('top-artists-chart', 'Top 10 Artists', topArtists.labels, topArtists.data);
+    try {
+        const listeningOverTime = getListeningOverTime(data);
+        createLineChart('listening-over-time-chart', 'Listening Over Time (Hours per Month)', listeningOverTime.labels, listeningOverTime.data);
+    } catch (error) {
+        console.error('Error creating Listening Over Time chart:', error);
     }
 
-    const topTracks = getTopItems(data, 'trackName', 10);
-    if (topTracks.labels.length > 0) {
-        createBarChart('top-tracks-chart', 'Top 10 Tracks', topTracks.labels, topTracks.data);
+    try {
+        const topArtists = getTopItems(data, 'artistName', 10);
+        if (topArtists.labels.length > 0) {
+            createBarChart('top-artists-chart', 'Top 10 Artists', topArtists.labels, topArtists.data);
+        }
+    } catch (error) {
+        console.error('Error creating Top Artists chart:', error);
     }
 
-    const hourlyActivity = getHourlyActivity(data);
-    createBarChart('hourly-activity-chart', 'Listening Activity by Hour', hourlyActivity.labels, hourlyActivity.data, 'Plays');
+    try {
+        const topTracks = getTopItems(data, 'trackName', 10);
+        if (topTracks.labels.length > 0) {
+            createBarChart('top-tracks-chart', 'Top 10 Tracks', topTracks.labels, topTracks.data);
+        }
+    } catch (error) {
+        console.error('Error creating Top Tracks chart:', error);
+    }
 
-    const dailyActivity = getDailyActivity(data);
-    createBarChart('daily-activity-chart', 'Listening Activity by Day of Week', dailyActivity.labels, dailyActivity.data, 'Plays');
+    try {
+        const hourlyActivity = getHourlyActivity(data);
+        createBarChart('hourly-activity-chart', 'Listening Activity by Hour', hourlyActivity.labels, hourlyActivity.data, 'Plays');
+    } catch (error) {
+        console.error('Error creating Hourly Activity chart:', error);
+    }
+
+    try {
+        const dailyActivity = getDailyActivity(data);
+        createBarChart('daily-activity-chart', 'Listening Activity by Day of Week', dailyActivity.labels, dailyActivity.data, 'Plays');
+    } catch (error) {
+        console.error('Error creating Daily Activity chart:', error);
+    }
 }
 
 function displaySummaryStats(data) {
